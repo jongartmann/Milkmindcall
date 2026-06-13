@@ -1,9 +1,9 @@
 services:
   - type: web
-    name: milkmind_mini_demo
+    name: milkmind-mini-demo
     runtime: static
     autoDeploy: true
-    branch: claude/wizardly-wright-ghxq5q
+    branch: main
     buildCommand: ""
     staticPublishPath: .
     routes:
