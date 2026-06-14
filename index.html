@@ -328,6 +328,14 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     barChart: "#cfd6d1"
   };
   var SANS = "'Inter','Segoe UI',system-ui,sans-serif";
+  var _sha256 = async (str) => {
+    try {
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+    } catch (e) {
+      return "sha256-unavailable";
+    }
+  };
   var MONO = "'IBM Plex Mono',monospace";
   var T = {
     de: {
@@ -397,6 +405,10 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       translating: "\xFCbersetzt\u2026",
       empty1: "Noch keine Meldung.",
       empty2: "L\xF6se links ein Szenario aus \u2014 beobachte, wie die Koh\xE4renz vor der Schwelle br\xF6ckelt, dann formuliert der Translator die Bauern-Meldung selbst.",
+      auditTitle: "Compliance Ledger",
+      auditSub: "Jede Entscheidung f\xE4lschungssicher protokolliert \u2014 Zeit, Tier, Muster, Confidence, SHA-256-Hash.",
+      auditBtn: "\u2B07 Audit-Log exportieren (Demo \xB7 JSON)",
+      auditHash: "Hash",
       preventive: "PR\xC4VENTIV \u2014 Meldung vor klinischen Symptomen, durch Koh\xE4renz-Einbruch \xFCber individueller Baseline",
       reactive: "reaktiv \u2014 Einzelschwelle bereits gerissen",
       logicTitle: "Wie es funktioniert",
@@ -494,6 +506,10 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       translating: "translating\u2026",
       empty1: "No alert yet.",
       empty2: "Inject a scenario on the left \u2014 watch coherence erode before the threshold, then the translator writes the farmer message itself.",
+      auditTitle: "Compliance Ledger",
+      auditSub: "Every decision tamper-evident \u2014 time, animal, pattern, confidence, SHA-256 hash.",
+      auditBtn: "\u2B07 Export audit log (demo \xB7 JSON)",
+      auditHash: "Hash",
       preventive: "PREVENTIVE \u2014 message before clinical symptoms, via coherence collapse over the individual baseline",
       reactive: "reactive \u2014 single threshold already breached",
       logicTitle: "How it works",
@@ -788,6 +804,37 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       setFarmDay(0);
       setHerd(NAMES.map(mkCow));
     };
+    const exportAudit = () => {
+      const entries = [...alerts].reverse().map((a, i) => ({
+        seq: i + 1,
+        ts: a.tsISO || null,
+        animal: a.name,
+        animal_id: a.id.split("-")[0],
+        condition: a.scenario,
+        coherence: Math.round(a.coh * 100) / 100,
+        breach: a.breach,
+        decision: a.breach ? "threshold_breached" : "preventive_pre_threshold",
+        message: a.text,
+        sha256: a.hash || null
+      }));
+      const doc = {
+        system: "MilkMind Compliance Ledger",
+        note: "DEMO EXPORT \u2014 illustrative audit record",
+        generated: (/* @__PURE__ */ new Date()).toISOString(),
+        standard: "EU AI Act (Reg. 2024/1689) \xB7 Limited Risk \xB7 append-only",
+        record_count: entries.length,
+        entries
+      };
+      const blob = new Blob([JSON.stringify(doc, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "milkmind-audit-demo.json";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    };
     const runTranslator = useCallback(async (cow2) => {
       setTranslating(true);
       const sc = SCENARIOS[cow2.scenario];
@@ -813,6 +860,17 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
         CANNED_IDX++;
       }
       await new Promise((r) => setTimeout(r, 900));
+      const _tsISO = (/* @__PURE__ */ new Date()).toISOString();
+      const _entry = {
+        ts: _tsISO,
+        animal: cow2.name,
+        animal_id: cow2.id,
+        condition: lang === "de" ? sc.de : sc.en,
+        coherence: Math.round(cow2.coh * 100) / 100,
+        breach,
+        message: text
+      };
+      const _hash = await _sha256(JSON.stringify(_entry));
       setAlerts((a) => [{
         id: cow2.id + "-" + Date.now(),
         name: cow2.name,
@@ -821,6 +879,8 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
         coh: cow2.coh,
         breach,
         text,
+        hash: _hash,
+        tsISO: _tsISO,
         ts: (/* @__PURE__ */ new Date()).toLocaleTimeString(lang === "de" ? "de-CH" : "en-GB", { hour: "2-digit", minute: "2-digit" })
       }, ...a]);
       setTranslating(false);
@@ -1085,7 +1145,27 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       color: C.sub,
       fontSize: 13,
       lineHeight: 1.7
-    } }, /* @__PURE__ */ React.createElement("b", { style: { color: C.ink } }, t.empty1), /* @__PURE__ */ React.createElement("br", null), t.empty2), alerts.map((a) => /* @__PURE__ */ React.createElement("div", { key: a.id, style: {
+    } }, /* @__PURE__ */ React.createElement("b", { style: { color: C.ink } }, t.empty1), /* @__PURE__ */ React.createElement("br", null), t.empty2), alerts.length > 0 && /* @__PURE__ */ React.createElement("div", { style: {
+      background: C.card,
+      border: `1px solid ${C.line}`,
+      borderRadius: 10,
+      padding: "12px 14px",
+      display: "flex",
+      alignItems: "center",
+      gap: 12,
+      flexWrap: "wrap"
+    } }, /* @__PURE__ */ React.createElement("div", { style: { flex: "1 1 180px", minWidth: 0 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", color: C.ink } }, t.auditTitle), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: C.sub, lineHeight: 1.5, marginTop: 3 } }, t.auditSub)), /* @__PURE__ */ React.createElement("button", { onClick: exportAudit, style: {
+      background: C.ink,
+      color: "#fff",
+      border: "none",
+      borderRadius: 8,
+      padding: "9px 13px",
+      fontSize: 12,
+      fontWeight: 700,
+      cursor: "pointer",
+      fontFamily: MONO,
+      whiteSpace: "nowrap"
+    } }, t.auditBtn)), alerts.map((a) => /* @__PURE__ */ React.createElement("div", { key: a.id, style: {
       background: C.card,
       border: `1px solid ${a.breach ? C.red : C.amber}`,
       borderRadius: 10,
@@ -1098,7 +1178,15 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       borderLeft: `3px solid ${a.breach ? C.red : C.amber}`,
       paddingLeft: 13,
       fontStyle: "italic"
-    } }, a.text), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 10, fontSize: 10.5, fontWeight: 600, color: a.breach ? C.red : C.green } }, a.breach ? t.reactive : `\u2933 ${t.preventive}`))))), /* @__PURE__ */ React.createElement("div", { style: {
+    } }, a.text), /* @__PURE__ */ React.createElement("div", { style: { marginTop: 10, fontSize: 10.5, fontWeight: 600, color: a.breach ? C.red : C.green } }, a.breach ? t.reactive : `\u2933 ${t.preventive}`), a.hash && /* @__PURE__ */ React.createElement("div", { style: {
+      marginTop: 9,
+      paddingTop: 9,
+      borderTop: `1px solid ${C.lineSoft}`,
+      fontSize: 10,
+      fontFamily: MONO,
+      color: C.sub,
+      wordBreak: "break-all"
+    } }, /* @__PURE__ */ React.createElement("span", { style: { color: C.slate, fontWeight: 700 } }, t.auditHash, " "), a.hash.slice(0, 32), "\u2026"))))), /* @__PURE__ */ React.createElement("div", { style: {
       maxWidth: 1320,
       margin: "8px auto 0",
       padding: mobile ? "0 12px 24px" : "0 26px 30px",
