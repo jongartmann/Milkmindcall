@@ -681,6 +681,13 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
     ] }
   };
   var CANNED_IDX = 0;
+  CANNED.watch = { de: [
+    "{NAME} weicht seit ein paar Tagen leicht von ihrer eigenen Linie ab \u2014 mehrere Werte geben gemeinsam ein wenig nach, keiner reisst eine Schwelle. Das ist noch kein klares Bild, aber ein fr\xFCher Hinweis, sie im Auge zu behalten; eine genauere Kontrolle w\xE4re eine Option. Am besten vom Tierarzt einsch\xE4tzen lassen.",
+    "Bei {NAME} zeigt sich eine leise, verteilte Drift gegen\xFCber ihrer Baseline \u2014 fr\xFCh, noch bevor ein Einzelwert auff\xE4llt. Es lohnt sich, sie zu beobachten und bei Bedarf genauer hinzuschauen. Zur Sicherheit tier\xE4rztlich abkl\xE4ren."
+  ], en: [
+    "{NAME} has been drifting slightly off her own line for a few days \u2014 several values easing together, none breaching a threshold. It's not a clear picture yet, but an early signal to keep an eye on her; a closer check would be an option. Best assessed by the vet.",
+    "{NAME} shows a quiet, distributed drift against her baseline \u2014 early, before any single value stands out. Worth watching her and looking closer if needed. Have the vet confirm to be safe."
+  ] };
   function MilkMind() {
     const mobile = useIsMobile();
     const [lang, setLang] = useState("de");
@@ -801,7 +808,9 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
         text = _pool[CANNED_IDX % _pool.length].replace(/\{NAME\}/g, cow2.name);
         CANNED_IDX++;
       } else {
-        text = lang === "de" ? "Auff\xE4lligkeit erkannt \u2014 bitte am Tier pr\xFCfen." : "Anomaly detected \u2014 please check on the animal.";
+        const _w = CANNED.watch[lang];
+        text = _w[CANNED_IDX % _w.length].replace(/\{NAME\}/g, cow2.name);
+        CANNED_IDX++;
       }
       await new Promise((r) => setTimeout(r, 900));
       setAlerts((a) => [{
@@ -1188,8 +1197,8 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       setBusy(true);
       const sys = lang === "de" ? "Du bist die Stall-App und sprichst als ruhiger, sachkundiger Beobachter \xFCber die Kuh, in der dritten Person (z. B. \u201ELeni zeigt \u2026\u201C). Lies ihren Zustand still durch mehrere Blickwinkel und lass sie in 2-3 ruhige S\xE4tze einfliessen (ohne sie zu benennen): Wie weit weg von IHREM Normal? Versch\xE4rft es sich oder f\xE4ngt es sich? Mehrere Signale oder nur eines? Kompensiert sie noch? Ist das Muster von fr\xFCher bekannt? Schon dringend oder leiser Anfang? Forme daraus EINE pr\xE4zise, ruhige Aussage, jedes Mal anders, sachlich statt niedlich. Du DARFST das Muster benennen und eine m\xF6gliche Massnahme als Idee erw\xE4hnen, aber IMMER als Vorschlag ('k\xF6nnte', 'spricht f\xFCr', 'w\xE4re eine Option'), NIE als Anweisung und OHNE Dosierung. Schliesse immer mit einem sanften Verweis, das vom Tierarzt best\xE4tigen/abkl\xE4ren zu lassen. Kein Fachjargon, keine Messwerte, kein Gruss." : "You are the barn app and you speak as a calm, knowledgeable observer about the cow, in the third person (e.g. \u201ELeni shows \u2026\u201C). Read her state silently through several viewpoints and let them flow into 2-3 calm sentences (without naming them): How far from HER own normal? Worsening or settling? Several signals or just one? Is she still compensating? Is the pattern known from before? Urgent yet or a quiet beginning? Form ONE precise, calm statement from them, different each time, factual rather than cute. You MAY name the pattern and mention a possible measure as an idea, but ALWAYS as a suggestion ('could', 'points to', 'would be an option'), NEVER as an instruction and WITHOUT any dosage. Always close with a gentle note to have the vet confirm/check it. No jargon, no readings, no greeting.";
       const prompt = lang === "de" ? `Kuh ${a.name}. Status: Fr\xFChwarnung, ${a.scenario || "Auff\xE4lligkeit"}. Formuliere die Meldung f\xFCr den Bauern.` : `Cow ${a.name}. Status: early warning, ${a.scenario || "anomaly"}. Write the farmer message.`;
-      const _sk = a.scenarioKey || a.scenario;
-      const _pool = CANNED[_sk] && CANNED[_sk][lang] || null;
+      const _sk = a.scenarioKey || (CANNED[a.scenario] ? a.scenario : "watch");
+      const _pool = CANNED[_sk] && CANNED[_sk][lang] || CANNED.watch[lang];
       await new Promise((r) => setTimeout(r, 700));
       if (_pool) {
         setLine(_pool[CANNED_IDX % _pool.length].replace(/\{NAME\}/g, a.name));
