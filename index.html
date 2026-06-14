@@ -409,6 +409,8 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       auditSub: "Jede Entscheidung f\xE4lschungssicher protokolliert \u2014 Zeit, Tier, Muster, Confidence, SHA-256-Hash.",
       auditBtn: "\u2B07 Audit-Log exportieren (Demo \xB7 JSON)",
       auditHash: "Hash",
+      auditBadge: "Audit-Ready",
+      auditBadgeSub: "EU AI Act \xB7 Transparenz",
       preventive: "PR\xC4VENTIV \u2014 Meldung vor klinischen Symptomen, durch Koh\xE4renz-Einbruch \xFCber individueller Baseline",
       reactive: "reaktiv \u2014 Einzelschwelle bereits gerissen",
       logicTitle: "Wie es funktioniert",
@@ -432,6 +434,8 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       jdM1p: "Zweck: Tiergesundheits-Fr\xFCherkennung (Einzeltier, on-farm)",
       jdM2: "MilkMind \u2192 MilkMasterMind",
       jdM2p: "Zweck: anonymisierte Cross-Hof-Muster (optional, default aus)",
+      jdM1flow: "\u2302 Read-only \xB7 Daten werden nur gelesen und bleiben auf dem Hof",
+      jdM2flow: "\u2197 Bei Freigabe verlassen NUR anonymisierte Muster den Hof \u2014 kein Einzeltier",
       jdActive: "Mandat aktiv",
       jdRevoked: "widerrufen",
       jdGrant: "erteilen",
@@ -510,6 +514,8 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       auditSub: "Every decision tamper-evident \u2014 time, animal, pattern, confidence, SHA-256 hash.",
       auditBtn: "\u2B07 Export audit log (demo \xB7 JSON)",
       auditHash: "Hash",
+      auditBadge: "Audit-Ready",
+      auditBadgeSub: "EU AI Act \xB7 transparency",
       preventive: "PREVENTIVE \u2014 message before clinical symptoms, via coherence collapse over the individual baseline",
       reactive: "reactive \u2014 single threshold already breached",
       logicTitle: "How it works",
@@ -533,6 +539,8 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       jdM1p: "Purpose: early animal-health detection (individual, on-farm)",
       jdM2: "MilkMind \u2192 MilkMasterMind",
       jdM2p: "Purpose: anonymized cross-farm patterns (optional, off by default)",
+      jdM1flow: "\u2302 Read-only \xB7 data is only read and stays on the farm",
+      jdM2flow: "\u2197 When granted, ONLY anonymized patterns leave the farm \u2014 no individual animal",
       jdActive: "mandate active",
       jdRevoked: "revoked",
       jdGrant: "grant",
@@ -1093,8 +1101,8 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       background: hardBreach(cow) ? C.redTint : C.amberTint,
       color: hardBreach(cow) ? C.red : "#9a6510"
     } }, hardBreach(cow) ? `\u26A0 ${t.breachNote}` : `\u25D0 ${t.earlyNote}`))), /* @__PURE__ */ React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 16 } }, /* @__PURE__ */ React.createElement("div", { style: { background: C.lelyTint, border: `1px solid ${C.lely}`, borderRadius: 10, padding: 16 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", color: C.lelyDk, marginBottom: 6 } }, t.transTitle.toUpperCase()), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 12.5, color: C.ink, lineHeight: 1.5 } }, t.transSub, translating && /* @__PURE__ */ React.createElement("span", { style: { color: C.amber, fontWeight: 600 } }, " \xB7 ", t.translating)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 10, color: C.sub, marginTop: 5 } }, "\u2191 ", t.transLive)), /* @__PURE__ */ React.createElement(Card, null, /* @__PURE__ */ React.createElement(Label, null, t.jdTitle), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11.5, color: C.slate, lineHeight: 1.55, margin: "8px 0 12px" } }, t.jdSub), [
-      { on: mandate1, set: setMandate1, name: t.jdM1, purpose: t.jdM1p },
-      { on: mandate2, set: setMandate2, name: t.jdM2, purpose: t.jdM2p }
+      { on: mandate1, set: setMandate1, name: t.jdM1, purpose: t.jdM1p, flow: t.jdM1flow, danger: false },
+      { on: mandate2, set: setMandate2, name: t.jdM2, purpose: t.jdM2p, flow: t.jdM2flow, danger: true }
     ].map((m, i) => /* @__PURE__ */ React.createElement("div", { key: i, style: {
       display: "flex",
       alignItems: "center",
@@ -1109,7 +1117,13 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       fontWeight: 700,
       marginTop: 4,
       color: m.on ? C.green : C.red
-    } }, m.on ? `\u25CF ${t.jdActive}` : `\u25CB ${t.jdRevoked}`)), /* @__PURE__ */ React.createElement("button", { onClick: () => m.set((v) => !v), style: {
+    } }, m.on ? `\u25CF ${t.jdActive}` : `\u25CB ${t.jdRevoked}`), /* @__PURE__ */ React.createElement("div", { style: {
+      fontSize: 9.5,
+      fontWeight: 600,
+      marginTop: 5,
+      lineHeight: 1.45,
+      color: m.danger ? C.red : C.green
+    } }, m.flow)), /* @__PURE__ */ React.createElement("button", { onClick: () => m.set((v) => !v), style: {
       ...btnGhost,
       fontSize: 11.5,
       ...m.on ? { borderColor: C.red, color: C.red } : { borderColor: C.green, color: C.green, fontWeight: 700 }
@@ -1154,7 +1168,32 @@ function(a,b,c){if(!Vd(b))throw Error(m(200));return Wd(null,a,b,!1,c)};Q.unmoun
       alignItems: "center",
       gap: 12,
       flexWrap: "wrap"
-    } }, /* @__PURE__ */ React.createElement("div", { style: { flex: "1 1 180px", minWidth: 0 } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", color: C.ink } }, t.auditTitle), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: C.sub, lineHeight: 1.5, marginTop: 3 } }, t.auditSub)), /* @__PURE__ */ React.createElement("button", { onClick: exportAudit, style: {
+    } }, /* @__PURE__ */ React.createElement("div", { style: { flex: "1 1 180px", minWidth: 0 } }, /* @__PURE__ */ React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" } }, /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase", color: C.ink, marginRight: 2 } }, t.auditTitle), /* @__PURE__ */ React.createElement("span", { style: {
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 5,
+      background: C.redTint,
+      color: C.red,
+      fontSize: 10,
+      fontWeight: 800,
+      letterSpacing: ".04em",
+      textTransform: "uppercase",
+      padding: "2px 8px",
+      borderRadius: 999,
+      border: `1px solid ${C.red}33`
+    } }, /* @__PURE__ */ React.createElement("span", { style: { width: 6, height: 6, borderRadius: "50%", background: C.red } }), t.auditBadge), /* @__PURE__ */ React.createElement("span", { style: {
+      display: "inline-flex",
+      alignItems: "center",
+      background: "transparent",
+      color: C.slate,
+      fontSize: 10,
+      fontWeight: 700,
+      letterSpacing: ".04em",
+      textTransform: "uppercase",
+      padding: "2px 8px",
+      borderRadius: 999,
+      border: `1px solid ${C.line}`
+    } }, t.auditBadgeSub)), /* @__PURE__ */ React.createElement("div", { style: { fontSize: 11, color: C.sub, lineHeight: 1.5, marginTop: 3 } }, t.auditSub)), /* @__PURE__ */ React.createElement("button", { onClick: exportAudit, style: {
       background: C.ink,
       color: "#fff",
       border: "none",
